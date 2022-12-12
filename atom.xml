@@ -51,9 +51,9 @@
     <link href="http://example.com/2022/12/12/DCNet%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
     <id>http://example.com/2022/12/12/DCNet%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/</id>
     <published>2022-12-12T01:24:05.000Z</published>
-    <updated>2022-12-12T02:22:47.085Z</updated>
+    <updated>2022-12-12T05:24:50.789Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><ul><li>Pytorch&#x3D;1.1.0  cudatoolkit&#x3D;10.0 torchivision&#x3D;0.3.0</li><li>pycocotools&#x3D;&#x3D;2.0</li><li>apex&#x3D;0.1</li><li>maskrcnn-benchmark&#x3D;0.1</li><li>scikit-image&#x3D;0.19.3</li></ul><p>现在姑且是出问题了，没有GPU不知道怎么安装</p><p>先尝试使用<a href="https://blog.csdn.net/rocking_struggling/article/details/121884775">(43条消息) apex安装报错：Cuda extensions are being compiled with a version of Cuda that does not match the verson_阿委困的不能行的博客-CSDN博客</a>的方法尝试一下，就是不加那两个参数，成功安装了</p>]]></content>
+    <content type="html"><![CDATA[<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><ul><li>Pytorch&#x3D;1.1.0  cudatoolkit&#x3D;10.0 torchivision&#x3D;0.3.0</li><li>pycocotools&#x3D;&#x3D;2.0</li><li>apex&#x3D;0.1</li><li>maskrcnn-benchmark&#x3D;0.1</li><li>scikit-image&#x3D;0.19.3</li></ul><p>现在姑且是出问题了，没有GPU不知道怎么安装</p><p>先尝试使用<a href="https://blog.csdn.net/rocking_struggling/article/details/121884775">(43条消息) apex安装报错：Cuda extensions are being compiled with a version of Cuda that does not match the verson_阿委困的不能行的博客-CSDN博客</a>的方法尝试一下，就是不加那两个参数，成功安装了</p><h1 id="数据集配置"><a href="#数据集配置" class="headerlink" title="数据集配置"></a>数据集配置</h1><p>一直没搞懂这里，annotations那个我就直接用的coco_annotations_minival那个</p><p>这一步出了问题：Prepare base and few-shot datasets</p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bash tools/fewshot_exp/datasets/init_fs_dataset_standard.sh</span><br></pre></td></tr></table></figure><p>里面不知道voc那个数据集在文档里是什么格式</p>]]></content>
     
     
       
