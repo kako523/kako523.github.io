@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-12-12T02:46:31.333Z</updated>
+  <updated>2022-12-12T03:07:44.027Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -21,14 +21,16 @@
     <link href="http://example.com/2022/12/12/ICME-2022-%E5%A4%A9%E6%B1%A0/"/>
     <id>http://example.com/2022/12/12/ICME-2022-%E5%A4%A9%E6%B1%A0/</id>
     <published>2022-12-12T02:01:44.000Z</published>
-    <updated>2022-12-12T02:46:31.333Z</updated>
+    <updated>2022-12-12T03:07:44.027Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="小样本商标检测挑战赛冠军方案-橘外人"><a href="#小样本商标检测挑战赛冠军方案-橘外人" class="headerlink" title="小样本商标检测挑战赛冠军方案 橘外人"></a>小样本商标检测挑战赛冠军方案 橘外人</h1><p>天池赛地址：<a href="https://tianchi.aliyun.com/competition/entrance/531948/forum">https://tianchi.aliyun.com/competition/entrance/531948/forum</a></p><h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><strong>模型结构</strong>：Cascade RCNN</p><p><strong>Backbone</strong>：Double ConvNeXt Base</p><p><strong>小样本</strong>：AutoAugment v2, Mixup, Copy-Paste</p><p><strong>小目标</strong>：1200-2400 高分辨率，Global Context</p><hr><h3 id="Cascade-RCNN"><a href="#Cascade-RCNN" class="headerlink" title="Cascade RCNN"></a>Cascade RCNN</h3><p><a href="https://arxiv.org/pdf/1712.00726.pdf">Cascade R-CNN: Delving into High Quality Object Detecion</a></p><h4 id="简要介绍"><a href="#简要介绍" class="headerlink" title="简要介绍"></a>简要介绍</h4><p>在目标检测中，<strong>IOU阈值</strong>被用来定义正样本（positive）与负样本（negative）</p><ol><li>如果使用<strong>较低</strong>的IOU阈值，那么会学习到大量的背景框，产生大量的噪声预测。</li><li>但是如果采用<strong>较高</strong>的阈值，这个检测器的表现往往会变得很差，两个主要的原因，第一就是随着IOU阈值的增加，正样本的数量会呈指数级的减小，因此产生过拟合。第二就是推理过程中出现于IOU的误匹配，也就是在训练优化感知器的过程中的最优IOU与输入proposal的IOU不相同，出现误匹配，这样很大程度上降低了检测精度。</li><li>mismatch：detector通常在proposal自身的IOU值与detector训练的IOU阈值较为接近的时候才会有更好的结果，如果二者差异较大那么很难产生良好的检测效果</li><li>因此为了解决这个问题，多阶段（multi-stage）的Cascade RCNN横空出世。它由多个感知器构成，这些感知器通过递增的IOU阈值分级段训练。一个感知器输出一个良好的数据分布来作为输入训练下一个高质量感知器，这样对于假阳性的问题会好很多，在inference阶段使用同样的网络结构合理的提高了IOU的阈值而不会出现之前所说的mismatch问题</li></ol><h6 id="正负样本："><a href="#正负样本：" class="headerlink" title="正负样本："></a>正负样本：</h6><ul><li>在分类问题中：比如是做人脸识别，正样本就是人脸的图片，负样本是与问题场景相关，比如在教室中进行学生人脸识别，负样本就是教师的窗子、墙</li></ul><p><img src="https://images2015.cnblogs.com/blog/534700/201701/534700-20170104102908612-1260846013.jpg" alt="img1"></p><ul><li>在检测问题中：在网络中生成的框ROI一部分被选为正样本，一部分被选为负样本，另一部分被当作背景或不参与运算，不同的框架有不同的策略，大致都是根据IOU值，选取阈值范围进行判定</li></ul><h1 id="参考博客"><a href="#参考博客" class="headerlink" title="参考博客"></a>参考博客</h1><p><a href="https://www.cnblogs.com/rainsoul/p/6247779.html">机器学习中的正负样本 - rainsoul</a></p>]]></content>
+    <content type="html"><![CDATA[<meta name="referrer" content="no-referrer"/><h1 id="小样本商标检测挑战赛冠军方案-橘外人"><a href="#小样本商标检测挑战赛冠军方案-橘外人" class="headerlink" title="小样本商标检测挑战赛冠军方案 橘外人"></a>小样本商标检测挑战赛冠军方案 橘外人</h1><p>天池赛地址：<a href="https://tianchi.aliyun.com/competition/entrance/531948/forum">https://tianchi.aliyun.com/competition/entrance/531948/forum</a></p><h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><strong>模型结构</strong>：Cascade RCNN</p><p><strong>Backbone</strong>：Double ConvNeXt Base</p><p><strong>小样本</strong>：AutoAugment v2, Mixup, Copy-Paste</p><p><strong>小目标</strong>：1200-2400 高分辨率，Global Context</p><hr><h3 id="Cascade-RCNN"><a href="#Cascade-RCNN" class="headerlink" title="Cascade RCNN"></a>Cascade RCNN</h3><p><a href="https://arxiv.org/pdf/1712.00726.pdf">Cascade R-CNN: Delving into High Quality Object Detecion</a></p><h4 id="简要介绍"><a href="#简要介绍" class="headerlink" title="简要介绍"></a>简要介绍</h4><p>在目标检测中，<strong>IOU阈值</strong>被用来定义正样本（positive）与负样本（negative）</p><ol><li>如果使用<strong>较低</strong>的IOU阈值，那么会学习到大量的背景框，产生大量的噪声预测。</li><li>但是如果采用<strong>较高</strong>的阈值，这个检测器的表现往往会变得很差，两个主要的原因，第一就是随着IOU阈值的增加，正样本的数量会呈指数级的减小，因此产生过拟合。第二就是推理过程中出现于IOU的误匹配，也就是在训练优化感知器的过程中的最优IOU与输入proposal的IOU不相同，出现误匹配，这样很大程度上降低了检测精度。</li><li><strong>mismatch：</strong>detector通常在<strong>proposal</strong>（二阶段方法中RPN的输出框）自身的IOU值与detector训练的IOU阈值较为接近的时候才会有更好的结果，如果二者差异较大那么很难产生良好的检测效果</li><li>因此为了解决这个问题，多阶段（multi-stage）的Cascade RCNN横空出世。它由多个感知器构成，这些感知器通过递增的IOU阈值分级段训练。一个感知器输出一个良好的数据分布来作为输入训练下一个高质量感知器，这样对于假阳性的问题会好很多，在inference阶段使用同样的网络结构合理的提高了IOU的阈值而不会出现之前所说的mismatch问题</li></ol><h6 id="正负样本："><a href="#正负样本：" class="headerlink" title="正负样本："></a>正负样本：</h6><ul><li>在分类问题中：比如是做人脸识别，正样本就是人脸的图片，负样本是与问题场景相关，比如在教室中进行学生人脸识别，负样本就是教师的窗子、墙</li></ul><p><img src="https://images2015.cnblogs.com/blog/534700/201701/534700-20170104102908612-1260846013.jpg" alt="img1"></p><ul><li>在检测问题中：在网络中生成的框ROI一部分被选为正样本，一部分被选为负样本，另一部分被当作背景或不参与运算，不同的框架有不同的策略，大致都是根据IOU值，选取阈值范围进行判定</li></ul><h4 id="网络结构图："><a href="#网络结构图：" class="headerlink" title="网络结构图："></a>网络结构图：</h4><p><img src="C:\Users\kako\AppData\Roaming\Typora\typora-user-images\image-20221212110618714.png" alt="image-20221212110618714"></p><p>三个stage的IOU阈值分别为0.5，0.6，0.7</p><p>每个stage都采用了不同的head，不同的stage可以适应不同的分布，效果更好</p><h1 id="参考博客"><a href="#参考博客" class="headerlink" title="参考博客"></a>参考博客</h1><p><a href="https://www.cnblogs.com/rainsoul/p/6247779.html">机器学习中的正负样本 - rainsoul</a></p>]]></content>
     
     
       
       
-    <summary type="html">&lt;h1 id=&quot;小样本商标检测挑战赛冠军方案-橘外人&quot;&gt;&lt;a href=&quot;#小样本商标检测挑战赛冠军方案-橘外人&quot; class=&quot;headerlink&quot; title=&quot;小样本商标检测挑战赛冠军方案 橘外人&quot;&gt;&lt;/a&gt;小样本商标检测挑战赛冠军方案 橘外人&lt;/h1&gt;&lt;p&gt;天池赛地址：</summary>
+    <summary type="html">&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;/&gt;
+
+&lt;h1 id=&quot;小样本商标检测挑战赛冠军方案-橘外人&quot;&gt;&lt;a href=&quot;#小样本商标检测挑战赛冠军方案-橘外人&quot; class=&quot;headerlink&quot; title=&quot;小样本商标检测挑战</summary>
       
     
     
