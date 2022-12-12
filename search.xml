@@ -4,6 +4,73 @@
   
     
     <entry>
+      <title>ICME-2022 天池</title>
+      <link href="/2022/12/12/ICME-2022-%E5%A4%A9%E6%B1%A0/"/>
+      <url>/2022/12/12/ICME-2022-%E5%A4%A9%E6%B1%A0/</url>
+      
+        <content type="html"><![CDATA[<h1 id="小样本商标检测挑战赛冠军方案-橘外人"><a href="#小样本商标检测挑战赛冠军方案-橘外人" class="headerlink" title="小样本商标检测挑战赛冠军方案 橘外人"></a>小样本商标检测挑战赛冠军方案 橘外人</h1><p>天池赛地址：<a href="https://tianchi.aliyun.com/competition/entrance/531948/forum">https://tianchi.aliyun.com/competition/entrance/531948/forum</a></p><h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><strong>模型结构</strong>：Cascade RCNN</p><p><strong>Backbone</strong>：Double ConvNeXt Base</p><p><strong>小样本</strong>：AutoAugment v2, Mixup, Copy-Paste</p><p><strong>小目标</strong>：1200-2400 高分辨率，Global Context</p><hr><h3 id="Cascade-RCNN"><a href="#Cascade-RCNN" class="headerlink" title="Cascade RCNN"></a>Cascade RCNN</h3><p><a href="https://arxiv.org/pdf/1712.00726.pdf">Cascade R-CNN: Delving into High Quality Object Detecion</a></p><h4 id="简要介绍"><a href="#简要介绍" class="headerlink" title="简要介绍"></a>简要介绍</h4><p>在目标检测中，<strong>IOU阈值</strong>被用来定义正样本（positive）与负样本（negative）</p><ol><li>如果使用较低的IOU阈值，那么会学习到大量的背景框，产生大量的噪声预测。</li><li>但是 如果采用较高的阈值，这个检测器的表现往往会变得很差，两个主要的原因，第一就是随着IOU阈值的增加，正样本的数量会呈指数级的减小，因此产生过拟合。第二就是推理过程中出现于IOU的误匹配，也就是在训练优化感知器的过程中的最优IOU与输入proposal的IOU不相同，出现误匹配，这样很大程度上降低了检测精度。</li><li>mismatch：detector通常在proposal自身的IOU值与detector训练的IOU阈值较为接近的时候才会有更好的结果，如果二者差异较大那么很难产生良好的检测效果</li><li>因此为了解决这个问题，多阶段（multi-stage）的Cascade RCNN横空出世。它由多个感知器构成，这些感知器通过递增的IOU阈值分级段训练。一个感知器输出一个良好的数据分布来作为输入训练下一个高质量感知器，这样对于假阳性的问题会好很多，在inference阶段使用同样的网络结构合理的提高了IOU的阈值而不会出现之前所说的mismatch问题</li></ol>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 深度学习 </tag>
+            
+            <tag> 目标检测 </tag>
+            
+            <tag> 算法复现 </tag>
+            
+            <tag> 天池 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>DCNet算法复现过程记录</title>
+      <link href="/2022/12/12/DCNet%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
+      <url>/2022/12/12/DCNet%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/</url>
+      
+        <content type="html"><![CDATA[<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><ul><li>Pytorch&#x3D;1.1.0  cudatoolkit&#x3D;10.0 torchivision&#x3D;0.3.0</li><li>pycocotools&#x3D;&#x3D;2.0</li><li>apex&#x3D;0.1</li><li>maskrcnn-benchmark&#x3D;0.1</li><li>scikit-image&#x3D;0.19.3</li></ul><p>现在姑且是出问题了，没有GPU不知道怎么安装</p><p>先尝试使用<a href="https://blog.csdn.net/rocking_struggling/article/details/121884775">(43条消息) apex安装报错：Cuda extensions are being compiled with a version of Cuda that does not match the verson_阿委困的不能行的博客-CSDN博客</a>的方法尝试一下，就是不加那两个参数，成功安装了</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 深度学习 </tag>
+            
+            <tag> 目标检测 </tag>
+            
+            <tag> 算法复现 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>pix2pix使用数据增强</title>
+      <link href="/2022/12/11/pix2pix%E4%BD%BF%E7%94%A8%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/"/>
+      <url>/2022/12/11/pix2pix%E4%BD%BF%E7%94%A8%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/</url>
+      
+        <content type="html"><![CDATA[<h1 id="使用Pytorch实现数据增强"><a href="#使用Pytorch实现数据增强" class="headerlink" title="使用Pytorch实现数据增强"></a>使用Pytorch实现数据增强</h1>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 图像转换 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>图像生成评价指标</title>
       <link href="/2022/12/11/%E5%9B%BE%E5%83%8F%E7%94%9F%E6%88%90%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87/"/>
       <url>/2022/12/11/%E5%9B%BE%E5%83%8F%E7%94%9F%E6%88%90%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87/</url>
