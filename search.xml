@@ -4,11 +4,172 @@
   
     
     <entry>
+      <title>A Diffusion-ReFinement Model for Sketch-to-Point Modeling</title>
+      <link href="/2023/02/04/A-Diffusion-ReFinement-Model-for-Sketch-to-Point-Modeling/"/>
+      <url>/2023/02/04/A-Diffusion-ReFinement-Model-for-Sketch-to-Point-Modeling/</url>
+      
+        <content type="html"><![CDATA[<h1 id="草图点对点建模的扩散修正模型"><a href="#草图点对点建模的扩散修正模型" class="headerlink" title="草图点对点建模的扩散修正模型"></a>草图点对点建模的扩散修正模型</h1><h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>扩散概率模型在生成任务中已被证明是有效的。然而，它的变体尚未实现其在跨维多模态生成任务的实践中的有效性。从单个徒手草图生成3D模型是一个典型的棘手的跨领域问题，由于VR&#x2F;AR技术的广泛出现和便携式触摸屏的使用，这个问题变得更加重要和紧迫。在本文中，我们引入了一种新的素描点对点扩散模型来解决这个问题。通过注入一种新的条件重构网络和一种细化网络，我们克服了二维之间的多模态生成的障碍。通过在给定的草图图像上显式地调节生成过程，我们的方法可以生成可信的点云，恢复三维形状的清晰细节和拓扑结构，也可以匹配输入的草图。在各种数据集上的大量实验表明，我们的模型在草图点对点生成任务中取得了很高的竞争性能</p><h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a><strong>1 Introduction</strong></h2><p>能够从单一草图中获得三维模型的挑战已经研究了几十年。我们的目标是为具有有限的绘图经验的用户提供精确和直观的三维建模。我们试图提出一种针对单手自由草图进行点云重建的方法，作为对现有的单视图重建方法的补充。考虑到新手用户在草图中常见的抽象和扭曲，由于其简单和不精确，草图包含的信息比图像少得多。这就导致了缺乏诸如颜色、阴影和纹理等重要的信息。为了解决这一跨领域问题，人们提出了一些基于学习的方法[49,27]，这些方法是通过比较渲染的轮廓或深度地图与地面真实地图来进行训练的，而不涉及三维形状中的地面真实。在从草图中获得深度和法线图后，他们使用这些图来重建三维形状。地面真实三维形状的缺失极大地限制了许多基于草图的三维模型生成网络恢复三维形状的拓扑和细节的能力</p><p>我们发现，去噪扩散概率模型（DDPM）[16]及其变体[23,28,45]在生成任务中取得了巨大的成功。特别是在3D点云完成和生成任务[29,28]中。在非平衡热力学条件下，反向扩散过程可以很好地模拟三维点云从无序到有序的生成过程。虽然通过GANs [1,41,37]实现的点云生成任务取得了显著进展，但基于GANs的方法在建模点云方面也有一些固有的局限性。与基于GANs的生成工作相比，扩散概率模型的训练过程更加稳定，概率生成模型可以获得更好的生成质量。然而，DDPM在多模态生成任务中很少被研究。条件DDPM [4,23]也仅适用于同维多模态生成任务，并没有证明其在跨维问题中的有效性。在DDPM [50,28]框架下，三维点云生成任务可以作为一个条件生成问题。事实上，我们发现由条件DDPM生成的点云通常有一个良好的整体分布，均匀地覆盖了物体的形状。尽管如此，由于DDPM的概率性质和缺乏合适的网络架构训练条件DDPM草图三维点云生成在以前的工作，<strong>我们发现DDPM重建点云往往缺乏平面和尖锐的细节，这也反映在他们的高评价度量损失与最先进的草图点云重建方法在我们的实验。</strong></p><p>在本文中，我们扩展条件DDPM从单个自由草图中生成点云，利用反向扩散过程中的分数函数得到所期望的点分布。类似于三维空间中粒子的热扩散，我们使用扩散过程来模拟从干净点分布到噪声分布的转换。同样，我们考虑反向扩散过程来模拟点云重建中点分布的变化，通过它我们从噪声中恢复目标点云。我们的扩散和采样范式如图2所示。首先，我们使用条件草图点对点重建网络（CS2PRNet），通过以输入草图图像为条件的DDPM生成一个点云。它可以迭代地将一组高斯噪声移动到一个期望的和干净的点云，对应于输入的草图。接下来，恢复网络（RFNet），一种形状鉴别器，利用其区分能力，进一步细化了由CS2PRNet生成的期望点云地面真实的和重建的。此外，RFNet可以用于细化由加速的DDPM [22]生成的相对较低质量的点云，这样我们就可以享受高达20倍的加速，同时最大限度地减少性能下降。这样，我们的模型生成的重建结果显示了良好的总体密度分布，清晰的局部细节和与输入草图的良好匹配。</p><blockquote><ol><li><p>首次，我们将条件DDPM扩展为一个具有有效、高效损失函数的良好模型，从单个徒手草图中生成点云，这提供了一个高质量、易于使用的3D内容创建解决方案。</p></li><li><p>我们讨论了草图潜在表示在基于草图的重建任务中的重要性，并设计了一个CS2PRNet来明确地条件下草图形状潜 的生成过程。通过利用RFNet对重建的点云进行细化，我们可以生成具有清晰的三维特征细节和与输入草图良好匹配的点云。</p></li><li><p>在各种数据集上的大量实验表明，我们的模型在基于草图的三维建模任务中取得了具有竞争力的性能。</p></li></ol></blockquote><h2 id="2-Related-Work"><a href="#2-Related-Work" class="headerlink" title="2 Related Work"></a><strong>2 Related Work</strong></h2><h3 id="2-1-单视角三维重建"><a href="#2-1-单视角三维重建" class="headerlink" title="2.1 单视角三维重建"></a>2.1 单视角三维重建</h3><h3 id="2-2-基于草图的建模"><a href="#2-2-基于草图的建模" class="headerlink" title="2.2 基于草图的建模"></a>2.2 基于草图的建模</h3><h3 id="2-3-扩散模型"><a href="#2-3-扩散模型" class="headerlink" title="2.3 扩散模型"></a>2.3 扩散模型</h3><h2 id="3-Methods"><a href="#3-Methods" class="headerlink" title="3 Methods"></a><strong>3 Methods</strong></h2><h2 id="4-实验"><a href="#4-实验" class="headerlink" title="4 实验"></a>4 实验</h2><p>在本节中，我们将评估我们提出的模型在草图点对点生成问题上的性能。我们首先进行案例研究，以显示我们的多模态扩散-再恢复模型的有效性。第4.3节介绍了对合成和自由手绘草图的定量和定性评价。我们还通过在4.4节中进行了消融研究，并在4.5节中提出了特征图模块，从而对我们的模型提供了一些额外的见解。</p><h3 id="4-1-实验设置"><a href="#4-1-实验设置" class="headerlink" title="4.1 实验设置"></a>4.1 实验设置</h3><p><strong>Datasets</strong>: 对于草图到三维点云生成实验，我们使用来自形状netcorev2[2]的三维形状来匹配我们对应的草图数据集。每个点云都有642个点。数据集中的每个类别都被随机分成训练集，测试集和验证集，按比例为80%，15%，分别为5%。对于相应的草图数据集，在训练前阶段，我们使用shapenet-合成草图来训练我们的模型。我们使用与[49]相同的方法，使用[20]提供的渲染图像创建Shapenet合成数据集。我们使用这个数据集来对模型进行预训练，在与之前所说的相同的训练&#x2F;测试&#x2F;验证分割下。在微调阶段，为了定量评估我们对自由草图的方法并有利于进一步的研究，我们使用形状网-业余草图[34]来微调我们预先训练的模型。它包含一个包含902个素描-三维形状四联体的椅子数据集和一个包含496个素描三维形状四联体的灯数据集</p><p><strong>评价指标</strong>: 在之前的工作[1]之后，我们使用两个评估指标来比较重建的三维点云与参考形状的质量：倒角距离（CD）和地球移动器的距离（EMD）[35]。倒角距离测量的是一个点集合中的每个点与另一个集合中的最近邻之间的点之间的平方距离，而EMD是旨在将一个集合转换为另一个集合的优化问题的解。</p><h3 id="4-2-实施细节"><a href="#4-2-实施细节" class="headerlink" title="4.2 实施细节"></a>4.2 实施细节</h3>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 文献阅读 </tag>
+            
+            <tag> diffusion </tag>
+            
+            <tag> 图像生成 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Sketch-based image retrieval via siamese convolutional neural network</title>
+      <link href="/2023/01/27/Sketch-based-image-retrieval-via-siamese-convolutional-neural-network/"/>
+      <url>/2023/01/27/Sketch-based-image-retrieval-via-siamese-convolutional-neural-network/</url>
+      
+        <content type="html"><![CDATA[<h1 id="SKETCH-BASED-IMAGE-RETRIEVAL-VIA-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK（通过暹罗卷积神经网络进行基于草图的图像检索）"><a href="#SKETCH-BASED-IMAGE-RETRIEVAL-VIA-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK（通过暹罗卷积神经网络进行基于草图的图像检索）" class="headerlink" title="SKETCH-BASED IMAGE RETRIEVAL VIA SIAMESE CONVOLUTIONAL NEURAL NETWORK（通过暹罗卷积神经网络进行基于草图的图像检索）"></a><strong>SKETCH-BASED IMAGE RETRIEVAL VIA SIAMESE CONVOLUTIONAL NEURAL NETWORK</strong>（通过暹罗卷积神经网络进行基于草图的图像检索）</h1><h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>基于草图的图像检索SBIR</p><p>主要思想：将其更接近于被标记为相似的输入草图-图像对的输出特征向量，如果不相关，则把它们推开。通过联合调整两个由一个损失函数连接的卷积神经网络来实现。</p><h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a>1 Introduction</h2><p>可视化实时查询QVE</p><blockquote><p>SBIR的一个关键挑战是处理照片固有的歧义：</p><p>（1）草图是抽象的描述，本质上不同于自然对象统计</p><p>（2）人类素描没有参考真正对象的照片，导致更大的外观和结构变化</p><p>（3）由于不同水平的绘画技能和个人视觉印象，草图表现出更多的类内变化</p></blockquote><p>现有的SBIR框架的主要问题：假设领域差距可以通过独立于视觉领域的手工制作特征很容易地跨越。这个问题通常可以通过预先对齐草图和照片，并将照片转换为像编辑器一样的草图来缓解</p><h2 id="2-Related-work"><a href="#2-Related-work" class="headerlink" title="2 Related work"></a>2 Related work</h2><p>大多数之前在SBIR 上的工作通常是这样的：首先从自然图像中提取边缘来近似草图，然后在得到的边缘和输入草图上独立提取局部特征（例如，HOG），最后查询和匹配边缘特征，通常使用KNN。然而，这种管道通常忽略了查询草图与其目标对象的边缘映射之间的抽象差异所引入的跨域差距。</p><p>在本文中，我们展示了暹罗卷积神经网络如何帮助学习语义嵌入，其中可以执行检索。与我们最相似的工作是，它的目标是通过学习暹罗cnn从2D人类草图中检索3D模型，但它不是为SBIR设计的，而是从3D模型精心投影的更清晰的边缘。本文提出了一种更适合于SBIR的新型暹罗体系结构。</p><h2 id="3-LEARNING-A-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK-FOR-SBIR"><a href="#3-LEARNING-A-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK-FOR-SBIR" class="headerlink" title="3 LEARNING A SIAMESE CONVOLUTIONAL NEURAL NETWORK FOR SBIR"></a><strong>3 LEARNING A SIAMESE CONVOLUTIONAL NEURAL NETWORK FOR SBIR</strong></h2><p>目标是找到一个将输入空间映射到目标空间的函数，使目标空间中的欧氏距离等于输入空间中的“语义”距离。</p><p>给定一对草图S和真实图像边缘，目的是寻找一个函数FW (X)参数化的MW（S，I）&#x3D;||FW(S)−FW(I)||小如果素描S和真实图像边缘我属于同一类别，和大。总体框架如图1所示。</p><h2 id="4-EXPERIMENT"><a href="#4-EXPERIMENT" class="headerlink" title="4 EXPERIMENT"></a><strong>4 EXPERIMENT</strong></h2><p>实验结果</p><h3 id="4-1-数据集"><a href="#4-1-数据集" class="headerlink" title="4.1 数据集"></a>4.1 数据集</h3><p>Flickr15k</p><p>该数据集包括从Flickr中取样的大约15k张照片，并根据形状手工标记为33个类别，以及由10个非专家素描师绘制的330个自由手绘草图查询。Flickr15k中的所有真实图像都是检索候选图像，其中330个草图作为查询，每对草图和图像都被标记为相似或不同。在我们的例子中，我们将所有的查询草图和照片平均分为两部分。然后在上半场训练我们的暹罗CNN，并在另一半节目上进行测试。</p><h3 id="4-2-实验设置"><a href="#4-2-实验设置" class="headerlink" title="4.2 实验设置"></a><strong>4.2 实验设置</strong></h3><p><strong>生成正对和负对：</strong>在我们提出的暹罗CNN进行训练过程之前，需要在训练集中形成正对和负对。具体来说，得到一个正对（S，I，Y&#x3D;0）：给定一个草图S，我们随机选择一个与S密切相关的图像边缘图I，即S和我有相同的标签。类似地，一个负对（S，I，Y &#x3D; 1）由一个草图S和一个带有不同标签的图像边缘图I给出。在我们的实验中，我们将任何草图的最大正对数设置为100，而对负对则相同。</p><p><strong>停止准则</strong>：在我们的实验中，该算法在20个时代后被终止。由于正对和负对是随机形成的，所以进行了多次实验，并报告了平均值。</p><p><strong>竞争对手</strong>：在SBIR实验中有几种最先进的SBIR方法进行比较，包括八种非学习方法和一种基于深度学习的方法：</p><ul><li><p><strong>两种最先进的非波方法</strong>：</p></li><li><p><strong>其他六种基于BoW的方法</strong></p></li><li><p><strong>一种基于深度学习的方法</strong></p></li></ul><h3 id="4-3-结果"><a href="#4-3-结果" class="headerlink" title="4.3 结果"></a>4.3 结果</h3>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 算法复现 </tag>
+            
+            <tag> 文献阅读 </tag>
+            
+            <tag> SBIR </tag>
+            
+            <tag> 图像检索 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>DiffSketching: Sketch Control Image Synthesis with Diffusion Models</title>
+      <link href="/2023/01/26/DiffSketching-Sketch-Control-Image-Synthesis-with-Diffusion-Models/"/>
+      <url>/2023/01/26/DiffSketching-Sketch-Control-Image-Synthesis-with-Diffusion-Models/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>传统上，创建一个从草图到图像合成的深度学习模型需要克服没有视觉细节的扭曲输入草图，并且需要收集大规模的草图-图像数据集。我们首先使用扩散模型来研究这个任务。我们的模型通过跨域约束来匹配草图，并使用一个<strong>分类器</strong>来更准确地指导图像合成。大量的实验证实，我们的方法不仅可以忠实于用户输入的草图，而且还可以保持合成图像结果的多样性和想象力。我们的模型在生成质量和人工评价方面可以击败基于gan的方法，<strong>并且不依赖于大量的素描图像数据集</strong>。此外，我们还介绍了我们的方法在图像编辑和插值中的应用。</p><h1 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a>1 Introduction</h1><p>扩散模型迅速流行起来，并在一些关键指标[10]中击败了GANs，为生成模型的研究带来了新的创造力。受此启发，我们提出了扩散素描，一种通过扩散模型的草图引导图像合成方法。通过前向扩散过程将输入图像转换为潜在噪声。在草图的指导下，调整分数功能，以转换为新的图像。这一过程不需要依赖于大型的草图-图像配对数据集，并且可以在定性比较和人工评价结果方面击败基于gan的方法。</p><p>我们的目标是，用户只需要输入一个草图，而我们的模型可以生成许多相应的图像。使用扩散模型来完成这一任务主要有三个挑战。</p><blockquote><ol><li><p>现有的扩散模型在单个领域内生成数据，因此我们需要一种合适的跨域生成的指导方法，以及一种合适的方法来度量两个不同领域内的数据分布。</p></li><li><p>与从图像中提取的边缘图不同，草图和相应的图像在空间和几何形状上更不一致，因此难以测量草图图像的跨域匹配。</p></li><li><p>用户输入的草图包含很少的信息，并且经常有歧义（例如，画一只狗，很难判断它是德国牧羊犬还是Briard）。我们需要引入更多的信息来消除这种歧义。</p></li></ol></blockquote><p>为了解决上述挑战，我们的工作做出了以下重大贡献。</p><blockquote><ol><li><p>我们提出了一个模型，它可以从单个草图中合成忠实的草图和真实的图像（图1），在基准测试上比基于gan的模型表现更好。</p></li><li><p>我们可以更精细地指导生成过程，消除了输入草图的奇异性和不确定性。</p></li><li><p>我们证明了我们的方法能够编辑图像，并在草图的条件下进行图像插值。</p></li></ol></blockquote><img src="https://i.328888.xyz/2023/02/04/NrdMV.png" alt="NrdMV.png" border="0" /><h2 id="2-related-works"><a href="#2-related-works" class="headerlink" title="2 related works"></a>2 related works</h2><p>然而，扩散模型的一个显著缺点是，它模拟了马尔可夫链的多个时间步长来生成样本。除了DDIM之外，人们还提出了许多加速方法[28,37,44,53,58]。除了图像合成[2,38,39,42]外，扩散模型还广泛应用于图像到图像转换[8,31,54]、文本到图像转换[16,26,41,43]、视频生成[18,22,57]和音频生成[23,27,30]等各个领域。</p><h2 id="3-素描制导图像生成的扩散模型"><a href="#3-素描制导图像生成的扩散模型" class="headerlink" title="3 素描制导图像生成的扩散模型"></a>3 素描制导图像生成的扩散模型</h2><h2 id="4-Experiments"><a href="#4-Experiments" class="headerlink" title="4 Experiments"></a><strong>4 Experiments</strong></h2><h3 id="4-1评估"><a href="#4-1评估" class="headerlink" title="4.1评估"></a>4.1评估</h3><p><strong>Datasets</strong>: 我们选择具有256×256分辨率的ImageNet数据集，包括1000个类别的128K图像，对类引导扩散模型进行预训练。在微调阶段，我们从素描[45]数据集中提取12.5K张图像，每个图像对应5张∼10幅草图。</p><p><strong>定量分析</strong>：我们基于弗雷切特初始距离[20]（<strong>FID</strong>）、初始距离评分[1]（<strong>IS</strong>）、精度和召回指标[29]来衡量我们的模型样本质量。FID通过比较图像特征的均值和方差来度量真实图像和生成图像之间的分布相似性。IS计算生成的图像分布的分类熵。精度度量的是模型样本在VGG特征空间[47]中接近数据样本的保真度，召回量的是VGG特征空间中数据样本接近模型样本的多样性。</p><p><strong>Human study</strong> ：我们通过比较不同基线方法的输出与我们的方法进行人工研究来判断合成质量。给定一个输入草图和不同方法的输出，参与者被要求选择在输出中最符合草图特征的图像。这次测试共招募了10名观众。我们随机抽取了500个样本进行随机显示。并计算每种选定方法的百分比。</p><h3 id="4-2-比较"><a href="#4-2-比较" class="headerlink" title="4.2 比较"></a><strong>4.2 比较</strong></h3><p><strong>Baselines</strong>：据我们所知，这是第一次将扩散模型用于基于草图的图像合成，并且之前的大部分工作都是基于GANs的。我们选择了3个基线模型，为了公平地说，所有的方法都在素描评估数据集上进行了测试。</p><blockquote><p>（1） USPS [35]是一个无监督的GAN模型，由两个步骤组成，将草图形状转换为灰度图像，并将其丰富为彩色图像。它提出了一个注意模块来处理抽象和风格的变化，可以提高生成的质量和真实性。</p><p>（2）MUNIT [24]是一个通用的无监督多模态图像转换框架。MUNIT将图像分解为内容代码和样式代码。它将内容代码与随机抽样的样式代码重新组合。并且该模型同时学习这两种代码。</p><p>（3）Sketch-YOG [52]预训练了一个基于gan的生成模型，利用跨域对抗性学习和图像空间调节来进行微调。</p></blockquote><p><strong>基准测试和定性分析结果</strong>：</p><p>（1）我们的模型在表1中列出的几乎所有指标上都优于其他基线，这表明我们可以以更多的多样性和高保真度恢复图像。人类研究得分越高，表明我们的综合结果更符合人类的直觉判断。</p><p>（2）与USPS和MUNIT不同，我们的模型没有需要大规模的素描图像数据集。由于缺乏如此大的数据集，许多基于gan的草图到图像模型只能合成一些类别，如鞋子和椅子。我们比较了对鞋的定性结果，如图3所示。</p><p>（3）USPS和MUNIT生成的图像形状与输入的草图严格匹配，它们专注于颜色、纹理和阴影的生成。而Sketch-YOG和我们的方法在外部轮廓方面给了模型更多的想象力，特别是我们能够生成更复杂的背景，从而产生更高的IS分数。</p><p>（4）精度略低于Sketch-YOG，说明我们的模型对真实数据分布的敏感性略低。更多的比较结果和分析可以在补充材料中找到。</p><h3 id="4-3-基于草图的图像合成"><a href="#4-3-基于草图的图像合成" class="headerlink" title="4.3 基于草图的图像合成"></a>4.3 基于草图的图像合成</h3><p><strong>细粒度草图控制图像合成：</strong>如图4(a)所示，当绘制一只狗时，用户的简单笔画不能被识别为德国牧羊犬、荆棘犬、瑞士山犬或任何其他类别。经过训练的分类器使用户能够在图4(b).中生成的类别更有趣的是，当我们指定与原始输入草图无关的类别时，我们仍然可以合成在样式和形状上与草图相似的图像，如图4(c).所示</p><p><strong>为了证明我们的模型比其他方法更实用</strong>，我们对手绘草图进行了测试。快速绘制[17]收集真实的手绘草图，这是简单的和扭曲的。定性和定量结果分别如图5和表1所示。由于我们计算的是草图的整体感知损失，而不是局部细节的一对一配对，我们的模型仍然可以从真实和扭曲的输入草图中生成用户的理想结果，仅略微减少定量指标。</p><h3 id="4-4-应用"><a href="#4-4-应用" class="headerlink" title="4.4 应用"></a>4.4 应用</h3><p>我们的模型可以在输入草图的指导下编辑原始图像，获得新的图像。我们使用Luhman等人[36]中的注意块来输入原始图像信息，保留图像的基本纹理和颜色信息。并根据用户输入的草图修改姿态和形状特征，合成出新的图像。计算结果如图6(a).所示关于该方法的细节见补充资料。</p><p>条件插值由于DDIM的一致性，我们使用球形线性[46]来组合不同的初始潜变量x (0) T和x (1) T，得到一个新的x (α) T。</p><h2 id="5-结论"><a href="#5-结论" class="headerlink" title="5 结论"></a>5 结论</h2><p>我们提出了扩散绘制，第一个利用扩散模型的跨领域草图到图像的合成方法。我们的方法可以在匹配输入时进行自监督，克服了草图和生成器参数空间之间的大域差距。我们可以通过分类器来区分简单线条的草图，显示出较强的内容推理能力。并且扩散素描在许多关键指标上都优于基于gan的方法，获得了高质量和现实的结果。我们进一步展示了应用于其他任务的潜力，如图像编辑和条件插值。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 算法复现 </tag>
+            
+            <tag> 文献阅读 </tag>
+            
+            <tag> diffusion </tag>
+            
+            <tag> 图像生成 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>MUNIT多模态无监督图想到图像转换论文阅读</title>
+      <link href="/2022/12/28/MUNIT%E5%A4%9A%E6%A8%A1%E6%80%81%E6%97%A0%E7%9B%91%E7%9D%A3%E5%9B%BE%E6%83%B3%E5%88%B0%E5%9B%BE%E5%83%8F%E8%BD%AC%E6%8D%A2%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/"/>
+      <url>/2022/12/28/MUNIT%E5%A4%9A%E6%A8%A1%E6%80%81%E6%97%A0%E7%9B%91%E7%9D%A3%E5%9B%BE%E6%83%B3%E5%88%B0%E5%9B%BE%E5%83%8F%E8%BD%AC%E6%8D%A2%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/</url>
+      
+        <content type="html"><![CDATA[<p>paper: <a href="https://arxiv.org/pdf/1804.04732.pdf">https://arxiv.org/pdf/1804.04732.pdf</a></p><p>code: <a href="https://github.com/NVlabs/MUNIT">NVlabs&#x2F;MUNIT: Multimodal Unsupervised Image-to-Image Translation (github.com)</a></p><h1 id="Multimodal-Unsupervised-Image-to-Image-Translation"><a href="#Multimodal-Unsupervised-Image-to-Image-Translation" class="headerlink" title="Multimodal Unsupervised Image-to-Image Translation"></a><strong>Multimodal Unsupervised Image-to-Image Translation</strong></h1>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 算法复现 </tag>
+            
+            <tag> 文献阅读 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>毕设参考文献整理</title>
+      <link href="/2022/12/27/%E6%AF%95%E8%AE%BE%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE%E6%95%B4%E7%90%86/"/>
+      <url>/2022/12/27/%E6%AF%95%E8%AE%BE%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE%E6%95%B4%E7%90%86/</url>
+      
+        <content type="html"><![CDATA[<h1 id="毕设参考文献整理"><a href="#毕设参考文献整理" class="headerlink" title="毕设参考文献整理"></a>毕设参考文献整理</h1><h2 id="1-基于草图的服装图像检索方法研究"><a href="#1-基于草图的服装图像检索方法研究" class="headerlink" title="1 基于草图的服装图像检索方法研究"></a>1 基于草图的服装图像检索方法研究</h2><p><a href="https://kns.cnki.net/kcms/detail/detail.aspx?dbcode=CMFD&dbname=CMFD202201&filename=1021650427.nh&uniplatform=NZKPT&v=5sW80-qYvQ-2oRWnfwkUKDYgHclcn6ZYsFHU9rvOoEmBSL501zbwphMcznYG1Nwg">基于草图的服装图像检索方法研究 - 中国知网 (cnki.net)</a></p><h2 id="2-基于手绘草图的服装图像检索技术及系统实现"><a href="#2-基于手绘草图的服装图像检索技术及系统实现" class="headerlink" title="2 基于手绘草图的服装图像检索技术及系统实现"></a>2 基于手绘草图的服装图像检索技术及系统实现</h2><p><a href="https://kns.cnki.net/kcms/detail/detail.aspx?dbcode=CMFD&dbname=CMFD201701&filename=1017006846.nh&uniplatform=NZKPT&v=0RiYC5DbBrw0HneXFTbRy8CvZbRo6SVqTFCLC0512qmaJrQV2vfflIIIptzgdYMi">基于手绘草图的服装图像检索技术及系统实现 - 中国知网 (cnki.net)</a></p><h2 id="3-基于深度学习的草图生成服装图像的研究"><a href="#3-基于深度学习的草图生成服装图像的研究" class="headerlink" title="3 基于深度学习的草图生成服装图像的研究"></a>3 基于深度学习的草图生成服装图像的研究</h2><p><a href="https://kns.cnki.net/kcms/detail/detail.aspx?dbcode=CMFD&dbname=CMFDTEMP&filename=1022597799.nh&uniplatform=NZKPT&v=_b9nR0rdkjR0xT3Ddy7Ab0Aagl1CILGmIANlTQWw5y2Ql4SNcZOQLJCQvXfboHg8">基于深度学习的草图生成服装图像的研究 - 中国知网 (cnki.net)</a></p><p>这篇包含很多基础的原理，可以详细去理解一下</p><p>这里提到的几个对比算法：</p><ul><li>MUNIT-多模态无监督图像到图像的转换</li><li>BicyleGAN</li></ul>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 图像生成 </tag>
+            
+            <tag> 参考论文 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>DiscoGAN算法复现</title>
+      <link href="/2022/12/19/DiscoGAN%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0/"/>
+      <url>/2022/12/19/DiscoGAN%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0/</url>
+      
+        <content type="html"><![CDATA[<h1 id="DiscoGAN算法复现"><a href="#DiscoGAN算法复现" class="headerlink" title="DiscoGAN算法复现"></a>DiscoGAN算法复现</h1><p>paper：<a href="https://arxiv.org/pdf/1703.05192.pdf">Learning to Discover Cross-Domain Relations with Generative Adversarial Networks (arxiv.org)</a></p><p>code: <a href="https://github.com/SKTBrain/DiscoGAN">SKTBrain&#x2F;DiscoGAN: Official implementation of “Learning to Discover Cross-Domain Relations with Generative Adversarial Networks” (github.com)</a></p><h2 id="使用conda进行环境配置"><a href="#使用conda进行环境配置" class="headerlink" title="使用conda进行环境配置"></a>使用conda进行环境配置</h2><ul><li>Python 2.7</li><li>PyTorch</li><li>Numpy&#x2F;Scipy&#x2F;Pandas</li><li>Progressbar</li><li>OpenCV</li></ul><p>创建conda环境</p><p><code>conda create --name disco python==2.7 </code></p><p>以上，在这一步终结了，下载python2.7好像有点麻烦，我准备直接去kaggle上面弄了</p><hr><h2 id="使用pytorch来实现的kaggle"><a href="#使用pytorch来实现的kaggle" class="headerlink" title="使用pytorch来实现的kaggle"></a>使用pytorch来实现的kaggle</h2><p>code: <a href="https://github.com/ozanciga/gans-with-pytorch">ozanciga&#x2F;gans-with-pytorch: Various implementations of Generative adversarial networks using Pytorch (github.com)</a></p><p><strong>代码更改：</strong></p><p>1 dataloader（main里面)把shuffle改成False，因为报错那个num_sample&#x3D;0</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 深度学习 </tag>
+            
+            <tag> 算法复现 </tag>
+            
+            <tag> 图像转换 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>DeFRCN算法复现</title>
+      <link href="/2022/12/14/DeFRCN%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0/"/>
+      <url>/2022/12/14/DeFRCN%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0/</url>
+      
+        <content type="html"><![CDATA[<h1 id="少样本目标检测-DeFRCN-Decoupled-Faster-R-CNN-for-Few-Shot-Object-Detection"><a href="#少样本目标检测-DeFRCN-Decoupled-Faster-R-CNN-for-Few-Shot-Object-Detection" class="headerlink" title="少样本目标检测 DeFRCN: Decoupled Faster R-CNN for Few-Shot Object Detection"></a>少样本目标检测 DeFRCN: Decoupled Faster R-CNN for Few-Shot Object Detection</h1><p>paper: <a href="https://arxiv.org/abs/2108.09017">https://arxiv.org/abs/2108.09017</a></p><p>code: <a href="https://github.com/er-muyue/DeFRCN">er-muyue&#x2F;DeFRCN (github.com)</a></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 深度学习 </tag>
+            
+            <tag> 目标检测 </tag>
+            
+            <tag> 算法复现 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>ICME-2022 天池</title>
       <link href="/2022/12/12/ICME-2022-%E5%A4%A9%E6%B1%A0/"/>
       <url>/2022/12/12/ICME-2022-%E5%A4%A9%E6%B1%A0/</url>
       
-        <content type="html"><![CDATA[<meta name="referrer" content="no-referrer"/><h1 id="小样本商标检测挑战赛冠军方案-橘外人"><a href="#小样本商标检测挑战赛冠军方案-橘外人" class="headerlink" title="小样本商标检测挑战赛冠军方案 橘外人"></a>小样本商标检测挑战赛冠军方案 橘外人</h1><p>天池赛地址：<a href="https://tianchi.aliyun.com/competition/entrance/531948/forum">https://tianchi.aliyun.com/competition/entrance/531948/forum</a></p><h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><strong>模型结构</strong>：Cascade RCNN</p><p><strong>Backbone</strong>：Double ConvNeXt Base</p><p><strong>小样本</strong>：AutoAugment v2, Mixup, Copy-Paste</p><p><strong>小目标</strong>：1200-2400 高分辨率，Global Context</p><hr><h3 id="Cascade-RCNN"><a href="#Cascade-RCNN" class="headerlink" title="Cascade RCNN"></a>Cascade RCNN</h3><p><a href="https://arxiv.org/pdf/1712.00726.pdf">Cascade R-CNN: Delving into High Quality Object Detecion</a></p><h4 id="简要介绍"><a href="#简要介绍" class="headerlink" title="简要介绍"></a>简要介绍</h4><p>在目标检测中，<strong>IOU阈值</strong>被用来定义正样本（positive）与负样本（negative）</p><ol><li>如果使用<strong>较低</strong>的IOU阈值，那么会学习到大量的背景框，产生大量的噪声预测。</li><li>但是如果采用<strong>较高</strong>的阈值，这个检测器的表现往往会变得很差，两个主要的原因，第一就是随着IOU阈值的增加，正样本的数量会呈指数级的减小，因此产生过拟合。第二就是推理过程中出现于IOU的误匹配，也就是在训练优化感知器的过程中的最优IOU与输入proposal的IOU不相同，出现误匹配，这样很大程度上降低了检测精度。</li><li><strong>mismatch：</strong>detector通常在<strong>proposal</strong>（二阶段方法中RPN的输出框）自身的IOU值与detector训练的IOU阈值较为接近的时候才会有更好的结果，如果二者差异较大那么很难产生良好的检测效果</li><li>因此为了解决这个问题，多阶段（multi-stage）的Cascade RCNN横空出世。它由多个感知器构成，这些感知器通过递增的IOU阈值分级段训练。一个感知器输出一个良好的数据分布来作为输入训练下一个高质量感知器，这样对于假阳性的问题会好很多，在inference阶段使用同样的网络结构合理的提高了IOU的阈值而不会出现之前所说的mismatch问题</li></ol><h6 id="正负样本："><a href="#正负样本：" class="headerlink" title="正负样本："></a>正负样本：</h6><ul><li>在分类问题中：比如是做人脸识别，正样本就是人脸的图片，负样本是与问题场景相关，比如在教室中进行学生人脸识别，负样本就是教师的窗子、墙</li></ul><p><img src="https://images2015.cnblogs.com/blog/534700/201701/534700-20170104102908612-1260846013.jpg" alt="img1"></p><ul><li>在检测问题中：在网络中生成的框ROI一部分被选为正样本，一部分被选为负样本，另一部分被当作背景或不参与运算，不同的框架有不同的策略，大致都是根据IOU值，选取阈值范围进行判定</li></ul><h4 id="网络结构图："><a href="#网络结构图：" class="headerlink" title="网络结构图："></a>网络结构图：</h4><p><img src="C:\Users\kako\AppData\Roaming\Typora\typora-user-images\image-20221212110618714.png" alt="image-20221212110618714"></p><p>三个stage的IOU阈值分别为0.5，0.6，0.7</p><p>每个stage都采用了不同的head，不同的stage可以适应不同的分布，效果更好</p><h1 id="参考博客"><a href="#参考博客" class="headerlink" title="参考博客"></a>参考博客</h1><p><a href="https://www.cnblogs.com/rainsoul/p/6247779.html">机器学习中的正负样本 - rainsoul</a></p>]]></content>
+        <content type="html"><![CDATA[<meta name="referrer" content="no-referrer"/><h1 id="baseline"><a href="#baseline" class="headerlink" title="baseline"></a>baseline</h1><p><strong>代码库</strong>：<a href="https://github.com/open-mmlab/mmdetection?spm=5176.21852664.0.0.29723ea1fzJguT">open-mmlab&#x2F;mmdetection: OpenMMLab Detection Toolbox and Benchmark (github.com)</a></p><p>测试代码：<a href="https://github.com/Zhang-HM/mmdetection?spm=5176.21852664.0.0.29723ea1fzJguT">Zhang-HM&#x2F;mmdetection: OpenMMLab Detection Toolbox and Benchmark (github.com)</a></p><p>本次比赛baseline沿用第七期安全AI挑战者计划检测工具箱mmdetection，新增Yolox系列、TOOD等最新的目标检测算法。</p><h1 id="小样本商标检测挑战赛冠军方案-橘外人"><a href="#小样本商标检测挑战赛冠军方案-橘外人" class="headerlink" title="小样本商标检测挑战赛冠军方案 橘外人"></a>小样本商标检测挑战赛冠军方案 橘外人</h1><p>天池赛地址：<a href="https://tianchi.aliyun.com/competition/entrance/531948/forum">https://tianchi.aliyun.com/competition/entrance/531948/forum</a></p><h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p><strong>模型结构</strong>：Cascade RCNN</p><p><strong>Backbone</strong>：Double ConvNeXt Base</p><p><strong>小样本</strong>：AutoAugment v2, Mixup, Copy-Paste</p><p><strong>小目标</strong>：1200-2400 高分辨率，Global Context</p><hr><h3 id="Cascade-RCNN"><a href="#Cascade-RCNN" class="headerlink" title="Cascade RCNN"></a>Cascade RCNN</h3><p><a href="https://arxiv.org/pdf/1712.00726.pdf">Cascade R-CNN: Delving into High Quality Object Detecion</a></p><h4 id="简要介绍"><a href="#简要介绍" class="headerlink" title="简要介绍"></a>简要介绍</h4><p>在目标检测中，<strong>IOU阈值</strong>被用来定义正样本（positive）与负样本（negative）</p><ol><li>如果使用<strong>较低</strong>的IOU阈值，那么会学习到大量的背景框，产生大量的噪声预测。</li><li>但是如果采用<strong>较高</strong>的阈值，这个检测器的表现往往会变得很差，两个主要的原因，第一就是随着IOU阈值的增加，正样本的数量会呈指数级的减小，因此产生过拟合。第二就是推理过程中出现于IOU的误匹配，也就是在训练优化感知器的过程中的最优IOU与输入proposal的IOU不相同，出现误匹配，这样很大程度上降低了检测精度。</li><li><strong>mismatch：</strong>detector通常在<strong>proposal</strong>（二阶段方法中RPN的输出框）自身的IOU值与detector训练的IOU阈值较为接近的时候才会有更好的结果，如果二者差异较大那么很难产生良好的检测效果</li><li>因此为了解决这个问题，多阶段（multi-stage）的Cascade RCNN横空出世。它由多个感知器构成，这些感知器通过递增的IOU阈值分级段训练。一个感知器输出一个良好的数据分布来作为输入训练下一个高质量感知器，这样对于假阳性的问题会好很多，在inference阶段使用同样的网络结构合理的提高了IOU的阈值而不会出现之前所说的mismatch问题</li></ol><p><strong>正负样本：</strong></p><ul><li>在分类问题中：比如是做人脸识别，正样本就是人脸的图片，负样本是与问题场景相关，比如在教室中进行学生人脸识别，负样本就是教师的窗子、墙</li></ul><p><img src="https://images2015.cnblogs.com/blog/534700/201701/534700-20170104102908612-1260846013.jpg" alt="img1"></p><ul><li>在检测问题中：在网络中生成的框ROI一部分被选为正样本，一部分被选为负样本，另一部分被当作背景或不参与运算，不同的框架有不同的策略，大致都是根据IOU值，选取阈值范围进行判定</li></ul><h4 id="网络结构图："><a href="#网络结构图：" class="headerlink" title="网络结构图："></a>网络结构图：</h4><p><img src="C:\Users\kako\AppData\Roaming\Typora\typora-user-images\image-20221212110618714.png" alt="image-20221212110618714"></p><p>三个stage的IOU阈值分别为0.5，0.6，0.7</p><p>每个stage都采用了不同的head，不同的stage可以适应不同的分布，效果更好</p><h1 id="参考博客"><a href="#参考博客" class="headerlink" title="参考博客"></a>参考博客</h1><p><a href="https://www.cnblogs.com/rainsoul/p/6247779.html">机器学习中的正负样本 - rainsoul</a></p>]]></content>
       
       
       
@@ -33,7 +194,7 @@
       <link href="/2022/12/12/DCNet%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
       <url>/2022/12/12/DCNet%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/</url>
       
-        <content type="html"><![CDATA[<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><ul><li>Pytorch&#x3D;1.1.0  cudatoolkit&#x3D;10.0 torchivision&#x3D;0.3.0</li><li>pycocotools&#x3D;&#x3D;2.0</li><li>apex&#x3D;0.1</li><li>maskrcnn-benchmark&#x3D;0.1</li><li>scikit-image&#x3D;0.19.3</li></ul><p>现在姑且是出问题了，没有GPU不知道怎么安装</p><p>先尝试使用<a href="https://blog.csdn.net/rocking_struggling/article/details/121884775">(43条消息) apex安装报错：Cuda extensions are being compiled with a version of Cuda that does not match the verson_阿委困的不能行的博客-CSDN博客</a>的方法尝试一下，就是不加那两个参数，成功安装了</p><h1 id="数据集配置"><a href="#数据集配置" class="headerlink" title="数据集配置"></a>数据集配置</h1><p>一直没搞懂这里，annotations那个我就直接用的coco_annotations_minival那个</p><p>这一步出了问题：Prepare base and few-shot datasets</p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bash tools/fewshot_exp/datasets/init_fs_dataset_standard.sh</span><br></pre></td></tr></table></figure><p>里面不知道voc那个数据集在文档里是什么格式</p>]]></content>
+        <content type="html"><![CDATA[<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><ul><li>Pytorch&#x3D;1.1.0  cudatoolkit&#x3D;10.0 torchivision&#x3D;0.3.0</li><li>pycocotools&#x3D;&#x3D;2.0</li><li>apex&#x3D;0.1</li><li>maskrcnn-benchmark&#x3D;0.1</li><li>scikit-image&#x3D;0.19.3</li></ul><p>现在姑且是出问题了，没有GPU不知道怎么安装</p><p>先尝试使用<a href="https://blog.csdn.net/rocking_struggling/article/details/121884775">(43条消息) apex安装报错：Cuda extensions are being compiled with a version of Cuda that does not match the verson_阿委困的不能行的博客-CSDN博客</a>的方法尝试一下，就是不加那两个参数，成功安装了</p><h1 id="数据集配置"><a href="#数据集配置" class="headerlink" title="数据集配置"></a>数据集配置</h1><p>一直没搞懂这里，annotations那个我就直接用的coco_annotations_minival那个</p><p>这一步出了问题：Prepare base and few-shot datasets</p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">bash tools/fewshot_exp/datasets/init_fs_dataset_standard.sh</span><br></pre></td></tr></table></figure><p>里面不知道voc那个数据集在文档里是什么格式</p><p>好的这一篇以不知道voc数据集是什么格式而终结</p>]]></content>
       
       
       
@@ -56,11 +217,13 @@
       <link href="/2022/12/11/pix2pix%E4%BD%BF%E7%94%A8%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/"/>
       <url>/2022/12/11/pix2pix%E4%BD%BF%E7%94%A8%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/</url>
       
-        <content type="html"><![CDATA[<h1 id="使用Pytorch实现数据增强"><a href="#使用Pytorch实现数据增强" class="headerlink" title="使用Pytorch实现数据增强"></a>使用Pytorch实现数据增强</h1>]]></content>
+        <content type="html"><![CDATA[<h1 id="使用Pytorch实现数据增强"><a href="#使用Pytorch实现数据增强" class="headerlink" title="使用Pytorch实现数据增强"></a>使用Pytorch实现数据增强</h1><h2 id="常用的数据增强方法"><a href="#常用的数据增强方法" class="headerlink" title="常用的数据增强方法"></a>常用的数据增强方法</h2><h3 id="1-随机比例缩放"><a href="#1-随机比例缩放" class="headerlink" title="1 随机比例缩放"></a>1 随机比例缩放</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">torchvision.transforms.Resize()</span><br></pre></td></tr></table></figure><h3 id="2-随机位置截取"><a href="#2-随机位置截取" class="headerlink" title="2 随机位置截取"></a>2 随机位置截取</h3><ol><li>传入的参数是截取出的图片的长和宽，对图片在随机位置进行截取</li></ol><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">torchvision.transforms.RandomCrop()</span><br></pre></td></tr></table></figure><ol start="2"><li>传入截取出的图片的长和宽，在图片中心进行截取</li></ol><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">torchvision.transforms.RandomCrop()</span><br></pre></td></tr></table></figure><h3 id="3-随机的水平和竖直方向翻转"><a href="#3-随机的水平和竖直方向翻转" class="headerlink" title="3 随机的水平和竖直方向翻转"></a>3 随机的水平和竖直方向翻转</h3>]]></content>
       
       
       
         <tags>
+            
+            <tag> 深度学习 </tag>
             
             <tag> 图像转换 </tag>
             

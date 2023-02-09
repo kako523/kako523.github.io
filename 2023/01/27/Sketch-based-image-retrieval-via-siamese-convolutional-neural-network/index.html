@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Sketch-based image retrieval via siamese convolutional neural network | kako</title><meta name="author" content="kako523"><meta name="copyright" content="kako523"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="SKETCH-BASED IMAGE RETRIEVAL VIA SIAMESE CONVOLUTIONAL NEURAL NETWORK（通过暹罗卷积神经网络进行基于草图的图像检索）Abstract基于草图的图像检索SBIR 主要思想：将其更接近于被标记为相似的输入草图-图像对的输出特征向量，如果不相关，则把它们推开。通过联合调整两个由一个损失函数连接的卷积神经网络来实现。 1 Introduc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sketch-based image retrieval via siamese convolutional neural network">
+<meta property="og:url" content="http://example.com/2023/01/27/Sketch-based-image-retrieval-via-siamese-convolutional-neural-network/index.html">
+<meta property="og:site_name" content="kako">
+<meta property="og:description" content="SKETCH-BASED IMAGE RETRIEVAL VIA SIAMESE CONVOLUTIONAL NEURAL NETWORK（通过暹罗卷积神经网络进行基于草图的图像检索）Abstract基于草图的图像检索SBIR 主要思想：将其更接近于被标记为相似的输入草图-图像对的输出特征向量，如果不相关，则把它们推开。通过联合调整两个由一个损失函数连接的卷积神经网络来实现。 1 Introduc">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://wallroom.io/img/3840x2160/bg-b158248.jpg">
+<meta property="article:published_time" content="2023-01-27T03:22:49.000Z">
+<meta property="article:modified_time" content="2023-01-30T09:56:47.931Z">
+<meta property="article:author" content="kako523">
+<meta property="article:tag" content="算法复现">
+<meta property="article:tag" content="文献阅读">
+<meta property="article:tag" content="SBIR">
+<meta property="article:tag" content="图像检索">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wallroom.io/img/3840x2160/bg-b158248.jpg"><link rel="shortcut icon" href="/img/icon.jpg"><link rel="canonical" href="http://example.com/2023/01/27/Sketch-based-image-retrieval-via-siamese-convolutional-neural-network/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Sketch-based image retrieval via siamese convolutional neural network',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-30 17:56:47'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="kako" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://wallroom.io/img/3840x2160/bg-b158248.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">kako</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Sketch-based image retrieval via siamese convolutional neural network</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-01-27T03:22:49.000Z" title="发表于 2023-01-27 11:22:49">2023-01-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-30T09:56:47.931Z" title="更新于 2023-01-30 17:56:47">2023-01-30</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>3分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Sketch-based image retrieval via siamese convolutional neural network"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="SKETCH-BASED-IMAGE-RETRIEVAL-VIA-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK（通过暹罗卷积神经网络进行基于草图的图像检索）"><a href="#SKETCH-BASED-IMAGE-RETRIEVAL-VIA-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK（通过暹罗卷积神经网络进行基于草图的图像检索）" class="headerlink" title="SKETCH-BASED IMAGE RETRIEVAL VIA SIAMESE CONVOLUTIONAL NEURAL NETWORK（通过暹罗卷积神经网络进行基于草图的图像检索）"></a><strong>SKETCH-BASED IMAGE RETRIEVAL VIA SIAMESE CONVOLUTIONAL NEURAL NETWORK</strong>（通过暹罗卷积神经网络进行基于草图的图像检索）</h1><h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>基于草图的图像检索SBIR</p>
+<p>主要思想：将其更接近于被标记为相似的输入草图-图像对的输出特征向量，如果不相关，则把它们推开。通过联合调整两个由一个损失函数连接的卷积神经网络来实现。</p>
+<h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a>1 Introduction</h2><p>可视化实时查询QVE</p>
+<blockquote>
+<p>SBIR的一个关键挑战是处理照片固有的歧义：</p>
+<p>（1）草图是抽象的描述，本质上不同于自然对象统计</p>
+<p>（2）人类素描没有参考真正对象的照片，导致更大的外观和结构变化</p>
+<p>（3）由于不同水平的绘画技能和个人视觉印象，草图表现出更多的类内变化</p>
+</blockquote>
+<p>现有的SBIR框架的主要问题：假设领域差距可以通过独立于视觉领域的手工制作特征很容易地跨越。这个问题通常可以通过预先对齐草图和照片，并将照片转换为像编辑器一样的草图来缓解</p>
+<h2 id="2-Related-work"><a href="#2-Related-work" class="headerlink" title="2 Related work"></a>2 Related work</h2><p>大多数之前在SBIR 上的工作通常是这样的：首先从自然图像中提取边缘来近似草图，然后在得到的边缘和输入草图上独立提取局部特征（例如，HOG），最后查询和匹配边缘特征，通常使用KNN。然而，这种管道通常忽略了查询草图与其目标对象的边缘映射之间的抽象差异所引入的跨域差距。</p>
+<p>在本文中，我们展示了暹罗卷积神经网络如何帮助学习语义嵌入，其中可以执行检索。与我们最相似的工作是，它的目标是通过学习暹罗cnn从2D人类草图中检索3D模型，但它不是为SBIR设计的，而是从3D模型精心投影的更清晰的边缘。本文提出了一种更适合于SBIR的新型暹罗体系结构。</p>
+<h2 id="3-LEARNING-A-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK-FOR-SBIR"><a href="#3-LEARNING-A-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK-FOR-SBIR" class="headerlink" title="3 LEARNING A SIAMESE CONVOLUTIONAL NEURAL NETWORK FOR SBIR"></a><strong>3 LEARNING A SIAMESE CONVOLUTIONAL NEURAL NETWORK FOR SBIR</strong></h2><p>目标是找到一个将输入空间映射到目标空间的函数，使目标空间中的欧氏距离等于输入空间中的“语义”距离。</p>
+<p>给定一对草图S和真实图像边缘，目的是寻找一个函数FW (X)参数化的MW（S，I）&#x3D;||FW(S)−FW(I)||小如果素描S和真实图像边缘我属于同一类别，和大。总体框架如图1所示。</p>
+<h2 id="4-EXPERIMENT"><a href="#4-EXPERIMENT" class="headerlink" title="4 EXPERIMENT"></a><strong>4 EXPERIMENT</strong></h2><p>实验结果</p>
+<h3 id="4-1-数据集"><a href="#4-1-数据集" class="headerlink" title="4.1 数据集"></a>4.1 数据集</h3><p>Flickr15k</p>
+<p>该数据集包括从Flickr中取样的大约15k张照片，并根据形状手工标记为33个类别，以及由10个非专家素描师绘制的330个自由手绘草图查询。Flickr15k中的所有真实图像都是检索候选图像，其中330个草图作为查询，每对草图和图像都被标记为相似或不同。在我们的例子中，我们将所有的查询草图和照片平均分为两部分。然后在上半场训练我们的暹罗CNN，并在另一半节目上进行测试。</p>
+<h3 id="4-2-实验设置"><a href="#4-2-实验设置" class="headerlink" title="4.2 实验设置"></a><strong>4.2 实验设置</strong></h3><p><strong>生成正对和负对：</strong>在我们提出的暹罗CNN进行训练过程之前，需要在训练集中形成正对和负对。具体来说，得到一个正对（S，I，Y&#x3D;0）：给定一个草图S，我们随机选择一个与S密切相关的图像边缘图I，即S和我有相同的标签。类似地，一个负对（S，I，Y &#x3D; 1）由一个草图S和一个带有不同标签的图像边缘图I给出。在我们的实验中，我们将任何草图的最大正对数设置为100，而对负对则相同。</p>
+<p><strong>停止准则</strong>：在我们的实验中，该算法在20个时代后被终止。由于正对和负对是随机形成的，所以进行了多次实验，并报告了平均值。</p>
+<p><strong>竞争对手</strong>：在SBIR实验中有几种最先进的SBIR方法进行比较，包括八种非学习方法和一种基于深度学习的方法：</p>
+<ul>
+<li><p><strong>两种最先进的非波方法</strong>：</p>
+</li>
+<li><p><strong>其他六种基于BoW的方法</strong></p>
+</li>
+<li><p><strong>一种基于深度学习的方法</strong></p>
+</li>
+</ul>
+<h3 id="4-3-结果"><a href="#4-3-结果" class="headerlink" title="4.3 结果"></a>4.3 结果</h3></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">kako523</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2023/01/27/Sketch-based-image-retrieval-via-siamese-convolutional-neural-network/">http://example.com/2023/01/27/Sketch-based-image-retrieval-via-siamese-convolutional-neural-network/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">kako</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0/">算法复现</a><a class="post-meta__tags" href="/tags/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a><a class="post-meta__tags" href="/tags/SBIR/">SBIR</a><a class="post-meta__tags" href="/tags/%E5%9B%BE%E5%83%8F%E6%A3%80%E7%B4%A2/">图像检索</a></div><div class="post_share"><div class="social-share" data-image="https://wallroom.io/img/3840x2160/bg-b158248.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/02/04/A-Diffusion-ReFinement-Model-for-Sketch-to-Point-Modeling/"><img class="prev-cover" src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">A Diffusion-ReFinement Model for Sketch-to-Point Modeling</div></div></a></div><div class="next-post pull-right"><a href="/2023/01/26/DiffSketching-Sketch-Control-Image-Synthesis-with-Diffusion-Models/"><img class="next-cover" src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">DiffSketching: Sketch Control Image Synthesis with Diffusion Models</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/01/26/DiffSketching-Sketch-Control-Image-Synthesis-with-Diffusion-Models/" title="DiffSketching: Sketch Control Image Synthesis with Diffusion Models"><img class="cover" src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-26</div><div class="title">DiffSketching: Sketch Control Image Synthesis with Diffusion Models</div></div></a></div><div><a href="/2022/12/28/MUNIT%E5%A4%9A%E6%A8%A1%E6%80%81%E6%97%A0%E7%9B%91%E7%9D%A3%E5%9B%BE%E6%83%B3%E5%88%B0%E5%9B%BE%E5%83%8F%E8%BD%AC%E6%8D%A2%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" title="MUNIT多模态无监督图想到图像转换论文阅读"><img class="cover" src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-28</div><div class="title">MUNIT多模态无监督图想到图像转换论文阅读</div></div></a></div><div><a href="/2022/12/12/DCNet%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" title="DCNet算法复现过程记录"><img class="cover" src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-12</div><div class="title">DCNet算法复现过程记录</div></div></a></div><div><a href="/2022/12/12/ICME-2022-%E5%A4%A9%E6%B1%A0/" title="ICME-2022 天池"><img class="cover" src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-12</div><div class="title">ICME-2022 天池</div></div></a></div><div><a href="/2022/12/14/DeFRCN%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0/" title="DeFRCN算法复现"><img class="cover" src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-14</div><div class="title">DeFRCN算法复现</div></div></a></div><div><a href="/2022/12/19/DiscoGAN%E7%AE%97%E6%B3%95%E5%A4%8D%E7%8E%B0/" title="DiscoGAN算法复现"><img class="cover" src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-19</div><div class="title">DiscoGAN算法复现</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">kako523</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/kako523"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">还有很多不足之处欢迎各位大佬指正</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SKETCH-BASED-IMAGE-RETRIEVAL-VIA-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK%EF%BC%88%E9%80%9A%E8%BF%87%E6%9A%B9%E7%BD%97%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E8%BF%9B%E8%A1%8C%E5%9F%BA%E4%BA%8E%E8%8D%89%E5%9B%BE%E7%9A%84%E5%9B%BE%E5%83%8F%E6%A3%80%E7%B4%A2%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">SKETCH-BASED IMAGE RETRIEVAL VIA SIAMESE CONVOLUTIONAL NEURAL NETWORK（通过暹罗卷积神经网络进行基于草图的图像检索）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Abstract"><span class="toc-number">1.1.</span> <span class="toc-text">Abstract</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Introduction"><span class="toc-number">1.2.</span> <span class="toc-text">1 Introduction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Related-work"><span class="toc-number">1.3.</span> <span class="toc-text">2 Related work</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-LEARNING-A-SIAMESE-CONVOLUTIONAL-NEURAL-NETWORK-FOR-SBIR"><span class="toc-number">1.4.</span> <span class="toc-text">3 LEARNING A SIAMESE CONVOLUTIONAL NEURAL NETWORK FOR SBIR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-EXPERIMENT"><span class="toc-number">1.5.</span> <span class="toc-text">4 EXPERIMENT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="toc-number">1.5.1.</span> <span class="toc-text">4.1 数据集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%AE%9E%E9%AA%8C%E8%AE%BE%E7%BD%AE"><span class="toc-number">1.5.2.</span> <span class="toc-text">4.2 实验设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E7%BB%93%E6%9E%9C"><span class="toc-number">1.5.3.</span> <span class="toc-text">4.3 结果</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/02/04/A-Diffusion-ReFinement-Model-for-Sketch-to-Point-Modeling/" title="A Diffusion-ReFinement Model for Sketch-to-Point Modeling"><img src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="A Diffusion-ReFinement Model for Sketch-to-Point Modeling"/></a><div class="content"><a class="title" href="/2023/02/04/A-Diffusion-ReFinement-Model-for-Sketch-to-Point-Modeling/" title="A Diffusion-ReFinement Model for Sketch-to-Point Modeling">A Diffusion-ReFinement Model for Sketch-to-Point Modeling</a><time datetime="2023-02-04T15:11:53.000Z" title="发表于 2023-02-04 23:11:53">2023-02-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/27/Sketch-based-image-retrieval-via-siamese-convolutional-neural-network/" title="Sketch-based image retrieval via siamese convolutional neural network"><img src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Sketch-based image retrieval via siamese convolutional neural network"/></a><div class="content"><a class="title" href="/2023/01/27/Sketch-based-image-retrieval-via-siamese-convolutional-neural-network/" title="Sketch-based image retrieval via siamese convolutional neural network">Sketch-based image retrieval via siamese convolutional neural network</a><time datetime="2023-01-27T03:22:49.000Z" title="发表于 2023-01-27 11:22:49">2023-01-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/26/DiffSketching-Sketch-Control-Image-Synthesis-with-Diffusion-Models/" title="DiffSketching: Sketch Control Image Synthesis with Diffusion Models"><img src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DiffSketching: Sketch Control Image Synthesis with Diffusion Models"/></a><div class="content"><a class="title" href="/2023/01/26/DiffSketching-Sketch-Control-Image-Synthesis-with-Diffusion-Models/" title="DiffSketching: Sketch Control Image Synthesis with Diffusion Models">DiffSketching: Sketch Control Image Synthesis with Diffusion Models</a><time datetime="2023-01-26T02:37:49.000Z" title="发表于 2023-01-26 10:37:49">2023-01-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/28/MUNIT%E5%A4%9A%E6%A8%A1%E6%80%81%E6%97%A0%E7%9B%91%E7%9D%A3%E5%9B%BE%E6%83%B3%E5%88%B0%E5%9B%BE%E5%83%8F%E8%BD%AC%E6%8D%A2%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" title="MUNIT多模态无监督图想到图像转换论文阅读"><img src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MUNIT多模态无监督图想到图像转换论文阅读"/></a><div class="content"><a class="title" href="/2022/12/28/MUNIT%E5%A4%9A%E6%A8%A1%E6%80%81%E6%97%A0%E7%9B%91%E7%9D%A3%E5%9B%BE%E6%83%B3%E5%88%B0%E5%9B%BE%E5%83%8F%E8%BD%AC%E6%8D%A2%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" title="MUNIT多模态无监督图想到图像转换论文阅读">MUNIT多模态无监督图想到图像转换论文阅读</a><time datetime="2022-12-28T09:00:46.000Z" title="发表于 2022-12-28 17:00:46">2022-12-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/27/%E6%AF%95%E8%AE%BE%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE%E6%95%B4%E7%90%86/" title="毕设参考文献整理"><img src="https://wallroom.io/img/3840x2160/bg-b158248.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="毕设参考文献整理"/></a><div class="content"><a class="title" href="/2022/12/27/%E6%AF%95%E8%AE%BE%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE%E6%95%B4%E7%90%86/" title="毕设参考文献整理">毕设参考文献整理</a><time datetime="2022-12-27T03:34:44.000Z" title="发表于 2022-12-27 11:34:44">2022-12-27</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By kako523</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
